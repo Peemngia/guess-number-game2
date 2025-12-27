@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>เกมทายตัวเลข</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            background: #111;
+            color: white;
+            margin-top: 100px;
+        }
+
+        input, button {
+            padding: 10px;
+            font-size: 18px;
+            margin: 5px;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 22px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🎲 เกมทายตัวเลข</h1>
+<p>กูสุ่มเลข 1 - 100 มึงทายมา</p>
+
+<input type="number" id="guess" placeholder="พิมพ์เลข">
+<br>
+<button onclick="check()">เดาเลยไอ้สัส</button>
+
+<div id="result"></div>
+
+<script>
+    let answer = Math.floor(Math.random() * 100) + 1;
+
+    function check() {
+        let g = document.getElementById("guess").value;
+        let result = document.getElementById("result");
+
+        if (g == "") {
+            result.innerText = "พิมพ์เลขก่อนดิไอ้เหี้ย";
+            return;
+        }
+
+        if (g > answer) {
+            result.innerText = "มากไปเว้ย";
+        } else if (g < answer) {
+            result.innerText = "น้อยไปวะ";
+        } else {
+            result.innerText = "ถูกแล้ว ไอ้เหี้ย เก่งชิบหาย 🎉";
+        }
+    }
+</script>
+
+</body>
+</html>
