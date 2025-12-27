@@ -35,7 +35,9 @@
 
 <input type="number" id="guess" placeholder="พิมพ์เลข">
 <br>
+
 <button onclick="check()">เดาเลยไอ้สัส</button>
+<button onclick="resetGame()">รีเซ็ตเกม 🔄</button>
 
 <div id="result"></div>
 
@@ -46,7 +48,7 @@
         let g = document.getElementById("guess").value;
         let result = document.getElementById("result");
 
-        if (g == "") {
+        if (g === "") {
             result.innerText = "พิมพ์เลขก่อนดิไอ้เหี้ย";
             return;
         }
@@ -58,6 +60,12 @@
         } else {
             result.innerText = "ถูกแล้ว ไอ้เหี้ย เก่งชิบหาย 🎉";
         }
+    }
+
+    function resetGame() {
+        answer = Math.floor(Math.random() * 100) + 1;
+        document.getElementById("guess").value = "";
+        document.getElementById("result").innerText = "เริ่มเกมใหม่แล้วเว้ย ลองมาอีก 😈";
     }
 </script>
 
