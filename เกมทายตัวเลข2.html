@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>เกมทายตัวเลขออนไลน์</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+body {
+    background:#111;
+    color:white;
+    text-align:center;
+    font-family:sans-serif;
+    margin-top:50px;
+}
+input, button, select {
+    padding:10px;
+    font-size:16px;
+    margin:5px;
+}
+#result { font-size:22px; margin-top:20px; }
+#score { margin-top:10px; }
+</style>
+</head>
+
+<body>
+
+<h1>🎲 เกมทายตัวเลขออนไลน์</h1>
+
+<input id="name" placeholder="ชื่อมึง">
+<select id="room">
+    <option value="room1">ห้อง 1</option>
+    <option value="room2">ห้อง 2</option>
+    <option value="room3">ห้อง 3</option>
+</select>
+<br>
+
+<input type="number" id="guess" placeholder="เดาเลข 1-100">
+<br>
+
+<button onclick="check()">เดาเลยไอ้สัส</button>
+<button onclick="resetGame()">รีเซ็ตรอบ 🔄</button>
+
+<div id="result"></div>
+<div id="score"></div>
+
+<script>
+/* Firebase config */
+const firebaseConfig = {
+  apiKey: "AIzaSyDRlB6q1NJeSnO4JsLQcUHr28XGKo573sk",
+  authDomain: "peem-dc962.firebaseapp.com",
+  databaseURL: "https://peem-dc962-default-rtdb.firebaseio.com",
+  projectId: "peem-dc962",
+  storageBucket: "peem-dc962.firebasestorage.app",
+  messagingSenderId: "1021248731842",
+  appId: "1:1021248731842:web:0e8b4ec8e0f51e0578595b"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let answer = 0;
+
+function getRoomPath() {
+    return "rooms/" + document.getElementById("room").value;
+}
+
+/* ฟังค่าจากห้อง */
+function listenRoom() {
+    const path = getRoomPath();
+
+    db.ref(path + "/answer").on("value", snap => {
+        if (snap.exists()) answer = snap.val();
+    });
+
+    db.ref(path + "/winner").on("value", snap => {
+        if (snap.exists()) {
+            document.getElementById("result").innerText =
+                "ผู้ชนะรอบนี้: " + snap.val();
+        }
+    });
+
+    db.ref(path + "/scores").on("value", snap => {
+        let text = "คะแนน:\n";
+        snap.forEach(s => {
+            text += s.key + " = " + s.val() + " | ";
+        });
+        document.getElementById("score").innerText = text;
+    });
+}
+
+listenRoom();
+
+document.getElementById("room").addEventListener("change", () => {
+    listenRoom();
+});
+
+/* เดา */
+function check() {
+    const name = document.getElementById("name").value;
+    const g = document.getElementById("guess").value;
+    const path = getRoomPath();
+
+    if (name === "" || g === "") {
+        document.getElementById("result").innerText =
+            "กรอกชื่อกับเลขก่อนดิไอ้เหี้ย";
+        return;
+    }
+
+    if (g > answer) {
+        document.getElementById("result").innerText = "มากไปเว้ย";
+    } else if (g < answer) {
+        document.getElementById("result").innerText = "น้อยไปวะ";
+    } else {
+        document.getElementById("result").innerText =
+            "ถูกแล้วไอ้เหี้ย 🎉";
+
+        const scoreRef = db.ref(path + "/scores/" + name);
+        scoreRef.get().then(snap => {
+            let score = snap.exists() ? snap.val() : 0;
+            scoreRef.set(score + 1);
+        });
+
+        db.ref(path + "/winner").set(name);
+        db.ref(path + "/status").set("finished");
+    }
+}
+
+/* รีเซ็ต */
+function resetGame() {
+    const path = getRoomPath();
+    const newAnswer = Math.floor(Math.random() * 100) + 1;
+
+    db.ref(path + "/answer").set(newAnswer);
+    db.ref(path + "/winner").remove();
+    db.ref(path + "/status").set("playing");
+
+    document.getElementById("result").innerText =
+        "เริ่มรอบใหม่แล้วโว้ย 🔥";
+}
+</script>
+
+</body>
+</html>
